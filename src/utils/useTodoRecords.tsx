@@ -5,7 +5,6 @@ function useTodoRecords(databaseInstance: any) {
   const [records, setRecords] = React.useState([]);
 
   const fetchRecords = async () => {
-    console.log("whadup");
     let _records;
     try {
       _records = await databaseInstance.allDocs({include_docs: true});
@@ -20,11 +19,11 @@ function useTodoRecords(databaseInstance: any) {
         _id: _record.id
       }
     }))
-    console.log(_records, 'records');
     
   }
   React.useEffect(() => {
     fetchRecords();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return records;

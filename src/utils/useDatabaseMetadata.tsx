@@ -11,7 +11,21 @@ function useDatabaseMetadata() {
 
   React.useEffect(() => {
     fetchMetadata();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const setupMultiLeaderSync = (srcDatabase: any) => {
+    srcDatabase.replicate.from(DatabaseEnums.ExternalApi).on('complete', function(info: any) {
+      // then two-way, continuous, retriable sync
+      srcDatabase.sync(DatabaseEnums.ExternalApi, {
+        live: true,
+        retry: true
+      })
+        .on('change', () => {})
+        .on('paused', () => {})
+        .on('error', () => {});
+    }).on('error', () => {});
+  }
 
   const fetchMetadata = async () => {
     let info: any;
@@ -23,8 +37,13 @@ function useDatabaseMetadata() {
     if (!info) {
       return setupNewDatabase();
     }
-    console.log(info, 'info man')
-    setDatabaseInstance(new PouchDB(info.nodeId));
+    const _databaseInstance = new PouchDB(info.nodeId);
+    setDatabaseInstance(_databaseInstance);
+    setupMultiLeaderSync(_databaseInstance);
+    PouchDB.sync(info.nodeId, DatabaseEnums.MetadataDBName, {
+      live: true,
+      retry: true
+    });
     setMetadataInfo({
       nodeId: info.nodeId,
       eventCount: info.eventCount,
@@ -35,7 +54,7 @@ function useDatabaseMetadata() {
   const setupNewDatabase = async () => {
     const randomId = uuid.v4();
     const document = {
-      _id: "database_info",
+      _id: DatabaseEnums.MetadataDBLookupRow,
       nodeId: randomId,
       eventCount: 0
     }
@@ -46,9 +65,10 @@ function useDatabaseMetadata() {
       console.error("Unable to create database", err);
       return;
     }
-    console.log(newInstanceResult, 'newInstanceResult')
-    
-    setDatabaseInstance(new PouchDB(randomId));
+    const _databaseInstance = new PouchDB(randomId);
+    setDatabaseInstance(_databaseInstance);
+    setupMultiLeaderSync(_databaseInstance);
+
     setMetadataInfo({
       nodeId: randomId,
       eventCount: 0,

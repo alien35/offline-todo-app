@@ -32,7 +32,7 @@ function Todos(props: Props) {
       nodeId: props.metadataInfo.nodeId
     })
   }
-  
+
   React.useEffect(() => {
     setTodos(records);
   }, [records]);
