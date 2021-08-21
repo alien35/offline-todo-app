@@ -1,43 +1,20 @@
 import React from 'react';
-import './App.css';
-import * as PouchDB from 'pouchdb';
+import Todos from './Todos';
+import useDatabaseMetadata from './utils/useDatabaseMetadata';
 
 function App() {
 
-  const [todos, setTodos] = React.useState<any[]>([]);
-  const [inputText, setInputText] = React.useState("");
+  const [databaseInstance, metadataInfo] = useDatabaseMetadata();
 
-  const onAddTodo = () => {
-    if (!inputText) {
-      return alert("Nothing to add...");
-    }
-    setTodos([...todos, {
-      createdAt: new Date().toISOString(),
-      message: inputText
-    }])
-    setInputText("");
-  }
-
-  const onRemoveTodo = (createdAt: any) => {
-    setTodos(todos.filter((todo: any) => todo.createdAt !== createdAt));
-  }
+  if (metadataInfo === null || databaseInstance === null) return (
+    <p>Please wait...</p>
+  )
 
   return (
-    <div className="App">
-      <h1>To-Do</h1>
-      <input value={inputText} onChange={(e) => setInputText(e.target.value)} placeholder="I need to..." />
-      <button onClick={onAddTodo}>Add!</button>
-      <div className="todos-content">
-        {
-          todos.map((todo) => (
-            <div key={todo.createdAt} className="todo-list-item">
-              <p>{todo.message}</p>
-              <p onClick={() => onRemoveTodo(todo.createdAt)} className="close-icon">X</p>
-            </div>
-          ))
-        }
-      </div>
-    </div>
+    <Todos
+      metadataInfo={metadataInfo}
+      databaseInstance={databaseInstance}
+    />
   );
 }
 
