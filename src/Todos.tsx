@@ -36,7 +36,6 @@ function Todos(props: Props) {
   React.useEffect(() => {
     setTodos(records);
   }, [records]);
-  console.log(records, 'records');
 
   const onAddTodo = () => {
     if (!inputText) {
@@ -56,7 +55,6 @@ function Todos(props: Props) {
   }
 
   const onRemoveTodo = async (id: string) => {
-    console.log(id, 'id')
     setTodos(todos.filter((todo: any) => todo._id !== id));
     let doc;
     try {
