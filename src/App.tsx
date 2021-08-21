@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+import * as PouchDB from 'pouchdb';
 
 function App() {
 
